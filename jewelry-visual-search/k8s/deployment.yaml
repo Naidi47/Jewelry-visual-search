@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jewelry-search-api
+  namespace: jewelry-search
+  labels:
+    app: jewelry-search-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jewelry-search-api
+  template:
+    metadata:
+      labels:
+        app: jewelry-search-api
+    spec:
+      # GPU node selector - requires NVIDIA GPU nodes
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-tesla-t4  # GKE example
+        # For AWS: node.kubernetes.io/instance-type: g4dn.xlarge
+      
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      
+      containers:
+        - name: api
+          image: jewelry-visual-search:latest
+          imagePullPolicy: Always
+          
+          ports:
+            - containerPort: 8000
+              name: http
+          
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "2"
+              nvidia.com/gpu: 1
+            limits:
+              memory: "8Gi"
+              cpu: "4"
+              nvidia.com/gpu: 1
+          
+          env:
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: jewelry-search-secrets
+                  key: mongodb-uri
+          
+          envFrom:
+            - configMapRef:
+                name: jewelry-search-config
+          
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          volumeMounts:
+            - name: model-cache
+              mountPath: /app/model_cache
+      
+      volumes:
+        - name: model-cache
+          emptyDir:
+            sizeLimit: 2Gi  # CLIP model ~1.7GB
+      
+      # Init container to pre-download model
+      initContainers:
+        - name: model-downloader
+          image: python:3.11-slim
+          command:
+            - sh
+            - -c
+            - |
+              pip install transformers torch --no-cache-dir &&
+              python -c "
+              from transformers import CLIPModel, CLIPProcessor
+              CLIPModel.from_pretrained('openai/clip-vit-base-patch32', cache_dir='/app/model_cache')
+              CLIPProcessor.from_pretrained('openai/clip-vit-base-patch32', cache_dir='/app/model_cache')
+              print('Model cached successfully')
+              "
+          volumeMounts:
+            - name: model-cache
+              mountPath: /app/model_cache
+          resources:
+            limits:
+              memory: "4Gi"
+              cpu: "2"

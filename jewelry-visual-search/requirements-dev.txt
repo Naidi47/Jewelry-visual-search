@@ -1,0 +1,16 @@
+# Production dependencies
+-r requirements.txt
+
+# Development and testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.25.2
+
+# Code quality
+black==23.11.0
+mypy==1.7.1
+types-Pillow==10.1.0.20231101
+
+# Data generation (for seed script)
+tqdm==4.66.1

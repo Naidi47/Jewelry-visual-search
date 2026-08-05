@@ -1,0 +1,442 @@
+[
+  {
+    "_id": "GOLD-RING-01",
+    "name": "Gold Ring 01",
+    "category": "ring",
+    "price": 590.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 01."
+    }
+  },
+  {
+    "_id": "GOLD-NECKLACE-01",
+    "name": "Gold Necklace 01",
+    "category": "necklace",
+    "price": 1800.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 01."
+    }
+  },
+  {
+    "_id": "GOLD-CHAIN-01",
+    "name": "Gold Chain 01",
+    "category": "necklace",
+    "price": 780.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 01."
+    }
+  },
+  {
+    "_id": "GOLD-RING-02",
+    "name": "Gold Ring 02",
+    "category": "ring",
+    "price": 677.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 02."
+    }
+  },
+  {
+    "_id": "GOLD-RING-03",
+    "name": "Gold Ring 03",
+    "category": "ring",
+    "price": 765.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 03."
+    }
+  },
+  {
+    "_id": "GOLD-CHAIN-02",
+    "name": "Gold Chain 02",
+    "category": "necklace",
+    "price": 867.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 02."
+    }
+  },
+  {
+    "_id": "GOLD-NECKLACE-02",
+    "name": "Gold Necklace 02",
+    "category": "necklace",
+    "price": 1887.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 02."
+    }
+  },
+  {
+    "_id": "GOLD-RING-04",
+    "name": "Gold Ring 04",
+    "category": "ring",
+    "price": 852.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 04."
+    }
+  },
+  {
+    "_id": "GOLD-CHAIN-03",
+    "name": "Gold Chain 03",
+    "category": "necklace",
+    "price": 955.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 03."
+    }
+  },
+  {
+    "_id": "GOLD-BRACELET-01",
+    "name": "Gold Bracelet or Bangle 01",
+    "category": "bracelet",
+    "price": 850.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold bracelet catalog item 01."
+    }
+  },
+  {
+    "_id": "GOLD-RING-05",
+    "name": "Gold Ring 05",
+    "category": "ring",
+    "price": 940.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 05."
+    }
+  },
+  {
+    "_id": "GOLD-NECKLACE-03",
+    "name": "Gold Necklace 03",
+    "category": "necklace",
+    "price": 1975.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 03."
+    }
+  },
+  {
+    "_id": "GOLD-CHAIN-04",
+    "name": "Gold Chain 04",
+    "category": "necklace",
+    "price": 1042.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 04."
+    }
+  },
+  {
+    "_id": "GOLD-PENDANT-01",
+    "name": "Gold Pendant 01",
+    "category": "pendant",
+    "price": 390.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold pendant catalog item 01."
+    }
+  },
+  {
+    "_id": "GOLD-CHAIN-05",
+    "name": "Gold Chain 05",
+    "category": "necklace",
+    "price": 1130.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 05."
+    }
+  },
+  {
+    "_id": "GOLD-PENDANT-02",
+    "name": "Gold Pendant 02",
+    "category": "pendant",
+    "price": 477.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold pendant catalog item 02."
+    }
+  },
+  {
+    "_id": "GOLD-PENDANT-03",
+    "name": "Gold Pendant 03",
+    "category": "pendant",
+    "price": 565.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold pendant catalog item 03."
+    }
+  },
+  {
+    "_id": "GOLD-RING-06",
+    "name": "Gold Ring 06",
+    "category": "ring",
+    "price": 1027.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 06."
+    }
+  },
+  {
+    "_id": "GOLD-PENDANT-04",
+    "name": "Gold Pendant 04",
+    "category": "pendant",
+    "price": 652.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold pendant catalog item 04."
+    }
+  },
+  {
+    "_id": "GOLD-RING-07",
+    "name": "Gold Ring 07",
+    "category": "ring",
+    "price": 1115.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 07."
+    }
+  },
+  {
+    "_id": "GOLD-CHAIN-06",
+    "name": "Gold Chain 06",
+    "category": "necklace",
+    "price": 1217.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 06."
+    }
+  },
+  {
+    "_id": "GOLD-NECKLACE-04",
+    "name": "Gold Necklace 04",
+    "category": "necklace",
+    "price": 2062.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 04."
+    }
+  },
+  {
+    "_id": "GOLD-RING-08",
+    "name": "Gold Ring 08",
+    "category": "ring",
+    "price": 1202.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 08."
+    }
+  },
+  {
+    "_id": "GOLD-EARRING-01",
+    "name": "Gold Earrings 01",
+    "category": "earring",
+    "price": 450.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold earring catalog item 01."
+    }
+  },
+  {
+    "_id": "GOLD-PENDANT-05",
+    "name": "Gold Pendant 05",
+    "category": "pendant",
+    "price": 740.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold pendant catalog item 05."
+    }
+  },
+  {
+    "_id": "GOLD-BRACELET-02",
+    "name": "Gold Bracelet or Bangle 02",
+    "category": "bracelet",
+    "price": 937.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold bracelet catalog item 02."
+    }
+  },
+  {
+    "_id": "GOLD-NECKLACE-05",
+    "name": "Gold Necklace 05",
+    "category": "necklace",
+    "price": 2150.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 05."
+    }
+  },
+  {
+    "_id": "GOLD-CHAIN-07",
+    "name": "Gold Chain 07",
+    "category": "necklace",
+    "price": 1305.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 07."
+    }
+  },
+  {
+    "_id": "GOLD-RING-09",
+    "name": "Gold Ring 09",
+    "category": "ring",
+    "price": 1290.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 09."
+    }
+  },
+  {
+    "_id": "GOLD-BRACELET-03",
+    "name": "Gold Bracelet or Bangle 03",
+    "category": "bracelet",
+    "price": 1025.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold bracelet catalog item 03."
+    }
+  },
+  {
+    "_id": "GOLD-RING-10",
+    "name": "Gold Ring 10",
+    "category": "ring",
+    "price": 1377.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 10."
+    }
+  },
+  {
+    "_id": "GOLD-CHAIN-08",
+    "name": "Gold Chain 08",
+    "category": "necklace",
+    "price": 1392.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 08."
+    }
+  },
+  {
+    "_id": "GOLD-RING-11",
+    "name": "Gold Ring 11",
+    "category": "ring",
+    "price": 1465.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 11."
+    }
+  },
+  {
+    "_id": "GOLD-NECKLACE-06",
+    "name": "Gold Necklace 06",
+    "category": "necklace",
+    "price": 2237.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 06."
+    }
+  },
+  {
+    "_id": "GOLD-RING-12",
+    "name": "Gold Ring 12",
+    "category": "ring",
+    "price": 1552.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 12."
+    }
+  },
+  {
+    "_id": "GOLD-NECKLACE-07",
+    "name": "Gold Necklace 07",
+    "category": "necklace",
+    "price": 2325.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 07."
+    }
+  },
+  {
+    "_id": "GOLD-NECKLACE-08",
+    "name": "Gold Necklace 08",
+    "category": "necklace",
+    "price": 2412.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold necklace catalog item 08."
+    }
+  },
+  {
+    "_id": "GOLD-RING-13",
+    "name": "Gold Ring 13",
+    "category": "ring",
+    "price": 1640.0,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 13."
+    }
+  },
+  {
+    "_id": "GOLD-EARRING-02",
+    "name": "Gold Earrings 02",
+    "category": "earring",
+    "price": 537.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold earring catalog item 02."
+    }
+  },
+  {
+    "_id": "GOLD-RING-14",
+    "name": "Gold Ring 14",
+    "category": "ring",
+    "price": 1727.5,
+    "metadata": {
+      "material": "gold",
+      "in_stock": true,
+      "description": "Gold ring catalog item 14."
+    }
+  }
+]

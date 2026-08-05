@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: jewelry-search
+  labels:
+    app: jewelry-visual-search
+    environment: production

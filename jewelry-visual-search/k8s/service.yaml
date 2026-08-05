@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jewelry-search-service
+  namespace: jewelry-search
+  labels:
+    app: jewelry-search-api
+spec:
+  type: ClusterIP
+  selector:
+    app: jewelry-search-api
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+      name: http

@@ -1,0 +1,25 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jewelry-visual-search:local
+    env_file:
+      - .env
+    environment:
+      MODEL_CACHE_DIR: /app/model_cache
+      DEVICE: ${DEVICE:-auto}
+    ports:
+      - "8000:8000"
+    volumes:
+      - model_cache:/app/model_cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  model_cache:

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanvika AI — Visual Jewelry Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        gold: {
+                            50: '#fdf9f0',
+                            100: '#f9f0d8',
+                            200: '#f0deb0',
+                            300: '#e4c87a',
+                            400: '#d4af37',
+                            500: '#c5a028',
+                            600: '#a88420',
+                            700: '#8c6d1e',
+                            800: '#735a1e',
+                            900: '#5f4a1c',
+                        },
+                        champagne: {
+                            50: '#faf8f5',
+                            100: '#f5f0e8',
+                            200: '#e8dfd0',
+                            300: '#d4c8b0',
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-1000px 0' },
+                            '100%': { backgroundPosition: '1000px 0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
+        .drop-zone-active {
+            border-color: #d4af37 !important;
+            background-color: rgba(212, 175, 55, 0.05) !important;
+            transform: scale(1.02);
+        }
+        
+        .card-hover-effect {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover-effect:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 12px 24px -8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-zoom-container {
+            overflow: hidden;
+        }
+        
+        .image-zoom-container img {
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover-effect:hover .image-zoom-container img {
+            transform: scale(1.08);
+        }
+        
+        .skeleton-shimmer {
+            background: linear-gradient(90deg, #f0ebe3 25%, #f5f0e8 50%, #f0ebe3 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s linear infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        
+        .score-badge {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .score-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0%, 100% { left: -100%; }
+            50% { left: 100%; }
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #d4c8b0;
+            border-radius: 20px;
+        }
+        
+        .loader-ring {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .loader-ring div {
+            box-sizing: border-box;
+            display: block;
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            margin: 8px;
+            border: 3px solid #d4af37;
+            border-radius: 50%;
+            animation: loader-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            border-color: #d4af37 transparent transparent transparent;
+        }
+        
+        .loader-ring div:nth-child(1) { animation-delay: -0.45s; }
+        .loader-ring div:nth-child(2) { animation-delay: -0.3s; }
+        .loader-ring div:nth-child(3) { animation-delay: -0.15s; }
+        
+        @keyframes loader-ring {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+    </style>
+</head>
+<body class="bg-champagne-50 min-h-screen font-sans text-gray-800 custom-scrollbar">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-white/50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shadow-lg shadow-gold-400/30">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-serif text-2xl font-semibold text-gray-900 tracking-tight">Sanvika</h1>
+                    <p class="text-xs text-gray-500 tracking-widest uppercase">AI Visual Search</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-6 text-sm text-gray-600">
+                <span class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Backend Connected
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-28 pb-20 px-4 sm:px-6">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Hero Section -->
+            <div class="text-center mb-12 animate-fade-in">
+                <h2 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-light text-gray-900 mb-4 leading-tight">
+                    Discover Jewelry by <span class="italic text-gold-600">Sight</span>
+                </h2>
+                <p class="text-gray-500 text-lg max-w-2xl mx-auto font-light leading-relaxed">
+                    Upload a photo of any jewelry piece and let our AI find similar items from our curated collection.
+                </p>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="max-w-2xl mx-auto mb-16">
+                <div id="dropZone" 
+                     class="relative group cursor-pointer rounded-3xl border-2 border-dashed border-gray-300 bg-white/60 p-12 sm:p-16 transition-all duration-300 hover:border-gold-400 hover:bg-white/80"
+                     onclick="document.getElementById('fileInput').click()">
+                    
+                    <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+                    
+                    <!-- Default State -->
+                    <div id="uploadPrompt" class="text-center transition-all duration-300">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-gold-100 to-gold-200 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-gold-200/50">
+                            <svg class="w-10 h-10 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                        </div>
+                        <h3 class="font-serif text-2xl text-gray-800 mb-2">Drop your image here</h3>
+                        <p class="text-gray-500 mb-2">or click to browse</p>
+                        <p class="text-sm text-gray-400">Supports JPG, PNG, WEBP up to 10MB</p>
+                    </div>
+
+                    <!-- Preview State (hidden by default) -->
+                    <div id="previewContainer" class="hidden">
+                        <div class="flex flex-col sm:flex-row items-center gap-6">
+                            <div class="relative">
+                                <div class="w-32 h-32 rounded-2xl overflow-hidden shadow-xl ring-4 ring-white">
+                                    <img id="previewImage" src="" alt="Preview" class="w-full h-full object-cover">
+                                </div>
+                                <button onclick="event.stopPropagation(); clearUpload()" 
+                                        class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center hover:bg-red-500 transition-colors shadow-lg">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="text-center sm:text-left flex-1">
+                                <p id="fileName" class="font-medium text-gray-800 mb-1"></p>
+                                <p id="fileSize" class="text-sm text-gray-500 mb-4"></p>
+                                <button id="searchBtn" onclick="event.stopPropagation(); performSearch()" 
+                                        class="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-gold-500 to-gold-600 text-white rounded-full font-medium shadow-lg shadow-gold-500/30 hover:shadow-xl hover:shadow-gold-500/40 hover:scale-105 transition-all duration-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                    Find Similar Jewelry
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading Overlay -->
+                    <div id="loadingOverlay" class="hidden absolute inset-0 rounded-3xl bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center z-10">
+                        <div class="loader-ring mb-4">
+                            <div></div><div></div><div></div><div></div>
+                        </div>
+                        <p class="text-gray-600 font-medium animate-pulse">Analyzing image...</p>
+                        <p class="text-sm text-gray-400 mt-2">Searching our collection</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="font-serif text-3xl text-gray-900">Search Results</h3>
+                        <p class="text-gray-500 mt-1">Found <span id="resultCount" class="font-medium text-gold-600">0</span> matching pieces</p>
+                    </div>
+                    <button onclick="clearResults()" class="text-sm text-gray-500 hover:text-gray-800 transition-colors flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        New Search
+                    </button>
+                </div>
+
+                <!-- Results Grid -->
+                <div id="resultsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Results injected here -->
+                </div>
+            </div>
+
+            <!-- Empty State / Initial -->
+            <div id="emptyState" class="text-center py-20">
+                <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-champagne-200 flex items-center justify-center">
+                    <svg class="w-12 h-12 text-champagne-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <p class="text-gray-400 font-light text-lg">Upload an image to discover matching jewelry</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 bg-white/50 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-sm text-gray-500"> Sanvika AI Jewelry Search. Powered by FastAPI.</p>
+            <div class="flex items-center gap-4 text-sm text-gray-400">
+                <span>Backend: localhost:8000</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ===== STATE MANAGEMENT =====
+        let currentFile = null;
+        let isSearching = false;
+
+        // ===== DOM ELEMENTS =====
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const resultCount = document.getElementById('resultCount');
+        const emptyState = document.getElementById('emptyState');
+
+        // ===== DRAG & DROP HANDLERS =====
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drop-zone-active');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drop-zone-active');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drop-zone-active');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        });
+
+        // ===== FILE HANDLING =====
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) processFile(file);
+        }
+
+        function processFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showNotification('Please upload an image file', 'error');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                showNotification('File size must be less than 10MB', 'error');
+                return;
+            }
+
+            currentFile = file;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                
+                uploadPrompt.classList.add('hidden');
+                previewContainer.classList.remove('hidden');
+                previewContainer.classList.add('animate-fade-in');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearUpload() {
+            currentFile = null;
+            fileInput.value = '';
+            previewImage.src = '';
+            
+            previewContainer.classList.add('hidden');
+            uploadPrompt.classList.remove('hidden');
+            uploadPrompt.classList.add('animate-fade-in');
+            
+            clearResults();
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // ===== SEARCH FUNCTIONALITY =====
+        async function performSearch() {
+            if (!currentFile || isSearching) return;
+            
+            isSearching = true;
+            loadingOverlay.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            try {
+                const formData = new FormData();
+                formData.append('image', currentFile);
+
+                const response = await fetch('http://localhost:8000/v1/search/visual?top_k=8&in_stock_only=false', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResults(data.results || []);
+
+            } catch (error) {
+                console.error('Search error:', error);
+                showNotification('Search failed. Please ensure the backend is running.', 'error');
+            } finally {
+                isSearching = false;
+                loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        // ===== RESULTS DISPLAY =====
+        function displayResults(results) {
+            resultsGrid.innerHTML = '';
+            resultCount.textContent = results.length;
+            
+            if (results.length === 0) {
+                resultsSection.classList.remove('hidden');
+                resultsGrid.innerHTML = `
+                    <div class="col-span-full text-center py-16">
+                        <p class="text-gray-500 text-lg">No matching jewelry found</p>
+                        <p class="text-gray-400 text-sm mt-2">Try uploading a different image</p>
+                    </div>
+                `;
+                return;
+            }
+
+            results.forEach((item, index) => {
+                const card = createResultCard(item, index);
+                resultsGrid.appendChild(card);
+            });
+
+            resultsSection.classList.remove('hidden');
+            
+            const cards = resultsGrid.querySelectorAll('.result-card');
+            cards.forEach((card, i) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, i * 100);
+            });
+        }
+
+        function createResultCard(item, index) {
+            // FIX APPLIED HERE: Removed '* 100' so the math works perfectly
+            const score = Math.round(item.similarity_score || 0);
+            const scoreColor = getScoreColor(score);
+            const scoreBg = getScoreBg(score);
+            
+            const card = document.createElement('div');
+            card.className = 'result-card card-hover-effect bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-500';
+            
+            const imageUrl = `http://localhost:8000/images/${item._id}/main.jpg`;
+            
+            card.innerHTML = `
+                <div class="image-zoom-container relative aspect-[4/5] bg-gray-100">
+                    <img src="${imageUrl}" 
+                         alt="${item.name}" 
+                         class="w-full h-full object-cover"
+                         loading="lazy"
+                         onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22500%22%3E%3Crect width=%22400%22 height=%22500%22 fill=%22%23f3f0e8%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23a89880%22 font-family=%22serif%22 font-size=%2218%22%3EImage Unavailable%3C/text%3E%3C/svg%3E'">
+                    
+                    <!-- Score Badge -->
+                    <div class="absolute top-3 right-3">
+                        <span class="score-badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${scoreBg} ${scoreColor} shadow-lg backdrop-blur-sm bg-opacity-90">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            ${score}% Match
+                        </span>
+                    </div>
+                    
+                    <!-- Hover Overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                </div>
+                
+                <div class="p-5">
+                    <h4 class="font-serif text-lg text-gray-900 mb-1 leading-snug line-clamp-2">${item.name}</h4>
+                    <div class="flex items-center justify-between mt-3">
+                        <span class="text-xl font-semibold text-gray-900">$${item.price?.toFixed(2) || '0.00'}</span>
+                        <button class="text-xs text-gold-600 hover:text-gold-700 font-medium uppercase tracking-wider flex items-center gap-1 group/btn">
+                            View Details
+                            <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function getScoreColor(score) {
+            if (score >= 95) return 'text-emerald-700';
+            if (score >= 90) return 'text-amber-700';
+            if (score >= 80) return 'text-orange-700';
+            return 'text-gray-700';
+        }
+
+        function getScoreBg(score) {
+            if (score >= 95) return 'bg-emerald-100';
+            if (score >= 90) return 'bg-amber-100';
+            if (score >= 80) return 'bg-orange-100';
+            return 'bg-gray-100';
+        }
+
+        function clearResults() {
+            resultsSection.classList.add('hidden');
+            resultsGrid.innerHTML = '';
+            emptyState.classList.remove('hidden');
+        }
+
+        // ===== NOTIFICATION SYSTEM =====
+        function showNotification(message, type = 'info') {
+            const existing = document.querySelectorAll('.notification-toast');
+            existing.forEach(n => n.remove());
+            
+            const toast = document.createElement('div');
+            toast.className = `notification-toast fixed bottom-6 right-6 z-50 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-slide-up ${
+                type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-gray-900 text-white'
+            }`;
+            
+            const icon = type === 'error' 
+                ? `<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
+                : `<svg class="w-5 h-5 text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            
+            toast.innerHTML = `${icon}<span class="font-medium text-sm">${message}</span>`;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && currentFile && !isSearching) {
+                performSearch();
+            }
+            if (e.key === 'Escape') {
+                clearUpload();
+            }
+        });
+
+        // ===== PASTE SUPPORT =====
+        document.addEventListener('paste', (e) => {
+            const items = e.clipboardData.items;
+            for (let item of items) {
+                if (item.type.startsWith('image/')) {
+                    const file = item.getAsFile();
+                    processFile(file);
+                    break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
