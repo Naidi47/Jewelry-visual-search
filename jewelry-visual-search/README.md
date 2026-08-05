@@ -19,6 +19,14 @@ A production-ready, AI-powered visual search engine designed for jewelry e-comme
 - **Infrastructure:** Docker, Docker Compose
 - **Frontend:** HTML5, JavaScript, Tailwind CSS
 
+## UI Preview
+
+### Upload Interface
+![Upload Interface](./assets/first_image.jpg)
+
+### Search Results & Matching
+![Search Results](./assets/second_image.jpg)
+
 ## Prerequisites
 
 Before running the application, ensure you have the following installed:
