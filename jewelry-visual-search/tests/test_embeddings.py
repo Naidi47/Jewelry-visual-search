@@ -11,10 +11,18 @@ from fastapi.testclient import TestClient
 from app.main import app
 
 
-client = TestClient(app)
+@pytest.fixture
+def client():
+    """
+    Create a test client using a context manager.
+    This ensures FastAPI's lifespan (startup/shutdown) events are executed,
+    which is required to load the CLIP ML model into memory before testing.
+    """
+    with TestClient(app) as c:
+        yield c
 
 
-def test_health_check():
+def test_health_check(client):
     """Verify health endpoint returns expected structure."""
     response = client.get("/health")
     assert response.status_code == 200
@@ -23,11 +31,10 @@ def test_health_check():
     assert "mongodb_connected" in data
 
 
-def test_generate_embedding_with_jpeg():
+def test_generate_embedding_with_jpeg(client):
     """Test embedding generation with valid JPEG."""
     # Create a small test image
     from PIL import Image
-    import io
     
     img = Image.new("RGB", (224, 224), color=(100, 150, 200))
     buf = io.BytesIO()
@@ -48,7 +55,7 @@ def test_generate_embedding_with_jpeg():
     assert data["metadata"]["normalized"] is True
 
 
-def test_generate_embedding_invalid_format():
+def test_generate_embedding_invalid_format(client):
     """Test rejection of non-image files."""
     response = client.post(
         "/v1/embeddings/generate",
@@ -57,7 +64,7 @@ def test_generate_embedding_invalid_format():
     assert response.status_code == 400
 
 
-def test_generate_embedding_oversized():
+def test_generate_embedding_oversized(client):
     """Test rejection of files exceeding size limit."""
     # Create a large dummy file
     large_content = b"x" * (11 * 1024 * 1024)  # 11 MB

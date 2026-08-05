@@ -1,6 +1,6 @@
 """
 MongoDB Atlas Vector Search service with aggregation pipeline construction
-and post-retrieval filtering.
+and pre-retrieval filtering.
 """
 
 import time
@@ -15,11 +15,7 @@ from app.models.schemas import SearchFilter, SearchRequest, SearchResponse, Sear
 class SearchService:
     """
     Handles MongoDB Atlas $vectorSearch aggregation pipeline construction
-    and execution with post-retrieval filtering.
-    
-    Atlas Vector Search uses Approximate Nearest Neighbor (ANN) with
-    HNSW (Hierarchical Navigable Small World) algorithm for sub-100ms
-    retrieval on millions of vectors.
+    and execution with pre-retrieval filtering for optimal recall.
     """
     
     def __init__(self, settings: Optional[Settings] = None):
@@ -57,65 +53,48 @@ class SearchService:
         filters: SearchFilter
     ) -> Dict[str, Any]:
         """
-        Construct MongoDB $vectorSearch aggregation stage.
+        Construct MongoDB $vectorSearch aggregation stage with dynamic pre-filtering.
         
-        CRITICAL: $vectorSearch MUST be the FIRST stage in the pipeline.
-        It cannot be preceded by $match, $limit, etc.
-        
-        numCandidates = top_k * 10 provides 10x oversampling for ANN
-        accuracy before filtering reduces results.
+        Pre-filtering ensures ANN search only considers documents matching the UI
+        constraints (price, category, etc.), guaranteeing accurate top_k recall.
         """
-        stage = {
-            "$vectorSearch": {
-                "index": self.settings.VECTOR_INDEX_NAME,
-                "path": "embedding",
-                "queryVector": query_embedding,
-                "numCandidates": top_k * 10,  # Oversample for accuracy
-                "limit": top_k
-            }
+        # 1. Build the dynamic filter dictionary
+        query_filter = {}
+
+        if filters.category and self.settings.ENABLE_CATEGORY_FILTER:
+            query_filter["category"] = {"$eq": filters.category}
+            
+        if filters.material:
+            query_filter["material"] = {"$eq": filters.material}
+            
+        if filters.in_stock_only:
+            query_filter["in_stock"] = {"$eq": True}
+            
+        if filters.price_min is not None or filters.price_max is not None:
+            query_filter["price"] = {}
+            if filters.price_min is not None:
+                query_filter["price"]["$gte"] = float(filters.price_min)
+            if filters.price_max is not None:
+                query_filter["price"]["$lte"] = float(filters.price_max)
+
+        # 2. Construct the vector search configuration
+        vector_search_config: Dict[str, Any] = {
+            "index": self.settings.VECTOR_INDEX_NAME,
+            "path": "embedding",
+            "queryVector": query_embedding,
+            "numCandidates": top_k * 10,  # Oversample for accuracy
+            "limit": top_k
         }
         
-        # Pre-filter using indexed filter fields (more efficient than post-filter)
-        # Requires 'category' to be defined as filter type in search index
-        if filters.category and self.settings.ENABLE_CATEGORY_FILTER:
-            stage["$vectorSearch"]["filter"] = {
-                "category": {"$eq": filters.category}
-            }
-        
-        return stage
-    
-    def _build_post_filter_stage(self, filters: SearchFilter) -> Optional[Dict[str, Any]]:
-        """
-        Construct $match stage for post-retrieval filtering.
-        
-        Applied AFTER vector search to refine results for fields not in
-        the vector index or complex range conditions.
-        """
-        match_conditions: Dict[str, Any] = {}
-        
-        if filters.material:
-            match_conditions["material"] = {"$eq": filters.material}
-        
-        if filters.price_min is not None or filters.price_max is not None:
-            price_range: Dict[str, Any] = {}
-            if filters.price_min is not None:
-                price_range["$gte"] = filters.price_min
-            if filters.price_max is not None:
-                price_range["$lte"] = filters.price_max
-            match_conditions["price"] = price_range
-        
-        if filters.in_stock_only:
-            match_conditions["in_stock"] = True
-        
-        return {"$match": match_conditions} if match_conditions else None
+        # Inject filters if any exist
+        if query_filter:
+            vector_search_config["filter"] = query_filter
+
+        return {"$vectorSearch": vector_search_config}
     
     def _build_projection_stage(self, include_embedding: bool) -> Dict[str, Any]:
         """
         Select fields to return and extract similarity score.
-        
-        The $meta: "vectorSearchScore" returns the raw similarity score
-        from the ANN search. For cosine similarity with normalized vectors,
-        this is effectively the dot product (since ||a|| = ||b|| = 1).
         """
         projection: Dict[str, Any] = {
             "_id": 1,
@@ -127,39 +106,23 @@ class SearchService:
             "material": 1,
             "in_stock": 1,
             "description": 1,
-            # Atlas returns similarity as score metadata
             "similarity_score": {"$meta": "vectorSearchScore"}
         }
         
         if include_embedding:
             projection["embedding"] = 1
-        
+            
         return {"$project": projection}
     
     def _normalize_score(self, raw_score: float) -> float:
         """
         Convert Atlas vectorSearchScore to confidence percentage.
-        
-        Mathematical basis:
-        - For L2-normalized vectors, cosine similarity = dot product
-        - Range: [-1, 1] theoretically, [0, 1] practically for similar items
-        - We clamp to [0, 1] and scale to percentage
-        
-        Args:
-            raw_score: MongoDB $vectorSearch score (cosine similarity)
-            
-        Returns:
-            Confidence percentage [0.0, 100.0]
         """
-        # Clamp to valid cosine range
         clamped = max(-1.0, min(1.0, raw_score))
         
-        # For normalized vectors, negative similarity is semantically impossible
-        # for visually similar items. Treat as 0 confidence.
         if clamped < 0:
             return 0.0
-        
-        # Scale to percentage with 2 decimal precision
+            
         return round(clamped * 100, 2)
     
     async def visual_search(
@@ -169,26 +132,13 @@ class SearchService:
     ) -> SearchResponse:
         """
         Execute complete visual search pipeline.
-        
-        Aggregation pipeline stages:
-        1. $vectorSearch: ANN retrieval from vector index
-        2. $match: Post-filtering (price, material, stock)
-        3. $project: Field selection + score extraction
-        4. $limit: Final result cap
-        
-        Args:
-            query_embedding: L2-normalized CLIP vector [512]
-            request: Search parameters and filters
-            
-        Returns:
-            SearchResponse with ranked, filtered results
         """
         start_time = time.perf_counter()
         
         # Build pipeline
         pipeline: List[Dict[str, Any]] = []
         
-        # Stage 1: Vector search (REQUIRED first stage)
+        # Stage 1: Vector search with integrated filtering
         pipeline.append(
             self._build_vector_search_stage(
                 query_embedding,
@@ -197,18 +147,10 @@ class SearchService:
             )
         )
         
-        # Stage 2: Post-filter (optional)
-        post_filter = self._build_post_filter_stage(request.filters)
-        if post_filter:
-            pipeline.append(post_filter)
-        
-        # Stage 3: Project and score
+        # Stage 2: Project and score extraction
         pipeline.append(
             self._build_projection_stage(request.include_embedding)
         )
-        
-        # Stage 4: Safety limit
-        pipeline.append({"$limit": request.top_k})
         
         # Execute aggregation
         collection = self.db[self.settings.MONGODB_COLLECTION_NAME]
@@ -254,8 +196,6 @@ class SearchService:
     ) -> None:
         """
         Index or update a product with its embedding.
-        
-        Used by catalog ingestion pipeline. Upsert ensures idempotency.
         """
         document = {
             "_id": product_id,
