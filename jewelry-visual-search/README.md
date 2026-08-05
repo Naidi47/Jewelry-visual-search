@@ -22,10 +22,10 @@ A production-ready, AI-powered visual search engine designed for jewelry e-comme
 ## UI Preview
 
 ### Upload Interface
-![Upload Interface](./assets/first_image.jpg)
+<img src="./assets/first_image.png" width="600" alt="Upload Interface">
 
 ### Search Results & Matching
-![Search Results](./assets/second_image.jpg)
+<img src="./assets/second_image.png" width="600" alt="Search Results">
 
 ## Prerequisites
 
