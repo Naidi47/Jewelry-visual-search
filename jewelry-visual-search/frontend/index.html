@@ -67,6 +67,12 @@
             -webkit-backdrop-filter: blur(20px);
         }
         
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        
         .drop-zone-active {
             border-color: #d4af37 !important;
             background-color: rgba(212, 175, 55, 0.05) !important;
@@ -178,6 +184,160 @@
             transform: translateY(0);
             transition: opacity 0.4s ease, transform 0.4s ease;
         }
+        
+        /* Custom select styling */
+        .luxury-select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238c6d1e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+        }
+        
+        /* Custom checkbox styling */
+        .luxury-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d4c8b0;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .luxury-checkbox:checked {
+            background-color: #d4af37;
+            border-color: #d4af37;
+        }
+        
+        .luxury-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        
+        .luxury-checkbox:hover {
+            border-color: #d4af37;
+        }
+        
+        /* Price input styling */
+        .price-input {
+            transition: all 0.2s ease;
+        }
+        
+        .price-input:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+        
+        /* Filter panel animation */
+        .filter-panel {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 500px;
+            opacity: 1;
+            overflow: hidden;
+        }
+        
+        .filter-panel.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        
+        /* Range slider styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 4px;
+            background: #e8dfd0;
+            border-radius: 2px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #d4af37;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+            transition: all 0.2s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #d4af37;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+        }
+        
+        /* Active filter tag */
+        .filter-tag {
+            animation: tagPop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes tagPop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* Mobile filter drawer */
+        @media (max-width: 640px) {
+            .mobile-filter-drawer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 60;
+                border-radius: 24px 24px 0 0;
+                max-height: 85vh;
+                overflow-y: auto;
+                transform: translateY(100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            
+            .mobile-filter-drawer.open {
+                transform: translateY(0);
+            }
+            
+            .mobile-filter-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.4);
+                z-index: 55;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+            }
+            
+            .mobile-filter-overlay.open {
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
     </style>
 </head>
 <body class="bg-champagne-50 min-h-screen font-sans text-gray-800 custom-scrollbar">
@@ -220,7 +380,7 @@
             </div>
 
             <!-- Upload Section -->
-            <div class="max-w-2xl mx-auto mb-16">
+            <div class="max-w-2xl mx-auto mb-10">
                 <div id="dropZone" 
                      class="relative group cursor-pointer rounded-3xl border-2 border-dashed border-gray-300 bg-white/60 p-12 sm:p-16 transition-all duration-300 hover:border-gold-400 hover:bg-white/80"
                      onclick="document.getElementById('fileInput').click()">
@@ -278,6 +438,158 @@
                 </div>
             </div>
 
+            <!-- Filter Panel (Desktop: always visible, Mobile: toggleable) -->
+            <div id="filterSection" class="max-w-5xl mx-auto mb-10 hidden">
+                <!-- Filter Toggle Bar -->
+                <div class="flex items-center justify-between mb-4">
+                    <button id="filterToggleBtn" onclick="toggleFilters()" 
+                            class="sm:hidden inline-flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-gray-200 text-gray-700 text-sm font-medium shadow-sm hover:border-gold-400 transition-colors">
+                        <svg class="w-4 h-4 text-gold-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        </svg>
+                        Filters
+                        <span id="activeFilterCount" class="hidden ml-1 px-1.5 py-0.5 bg-gold-100 text-gold-700 text-xs rounded-full">0</span>
+                    </button>
+                    
+                    <!-- Active Filters Display -->
+                    <div id="activeFilters" class="hidden sm:flex items-center gap-2 flex-wrap"></div>
+                    
+                    <button onclick="clearAllFilters()" class="text-sm text-gray-500 hover:text-gold-600 transition-colors flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Reset
+                    </button>
+                </div>
+
+                <!-- Desktop Filter Panel -->
+                <div id="desktopFilters" class="hidden sm:block">
+                    <div class="glass-panel rounded-2xl border border-white/60 shadow-lg p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                            <!-- Category -->
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Category</label>
+                                <select id="categoryFilter" class="luxury-select w-full px-4 py-2.5 bg-white/80 border border-gray-200 rounded-xl text-gray-800 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-100 transition-all cursor-pointer">
+                                    <option value="">All Categories</option>
+                                    <option value="necklace">Necklace</option>
+                                    <option value="ring">Ring</option>
+                                    <option value="bracelet">Bracelet</option>
+                                    <option value="earring">Earring</option>
+                                    <option value="pendant">Pendant</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Material -->
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Material</label>
+                                <select id="materialFilter" class="luxury-select w-full px-4 py-2.5 bg-white/80 border border-gray-200 rounded-xl text-gray-800 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-100 transition-all cursor-pointer">
+                                    <option value="">All Materials</option>
+                                    <option value="gold">Gold</option>
+                                    <option value="silver">Silver</option>
+                                    <option value="platinum">Platinum</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Price Range -->
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Price Range (USD)</label>
+                                <div class="flex items-center gap-2">
+                                    <div class="relative flex-1">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                        <input type="number" id="minPriceFilter" placeholder="Min" min="0"
+                                               class="price-input w-full pl-7 pr-3 py-2.5 bg-white/80 border border-gray-200 rounded-xl text-gray-800 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-100">
+                                    </div>
+                                    <span class="text-gray-400">–</span>
+                                    <div class="relative flex-1">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                        <input type="number" id="maxPriceFilter" placeholder="Max" min="0"
+                                               class="price-input w-full pl-7 pr-3 py-2.5 bg-white/80 border border-gray-200 rounded-xl text-gray-800 text-sm focus:outline-none focus:border-gold-400 focus:ring-2 focus:ring-gold-100">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- In Stock & Apply -->
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center gap-2.5 cursor-pointer group">
+                                    <input type="checkbox" id="inStockFilter" class="luxury-checkbox">
+                                    <span class="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">In Stock Only</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Filter Drawer -->
+                <div id="mobileFilterOverlay" class="mobile-filter-overlay sm:hidden" onclick="toggleFilters()"></div>
+                <div id="mobileFilterDrawer" class="mobile-filter-drawer sm:hidden glass-panel border-t border-white/60 shadow-2xl p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-serif text-xl text-gray-900">Filters</h3>
+                        <button onclick="toggleFilters()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <!-- Category -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Category</label>
+                            <select id="categoryFilterMobile" class="luxury-select w-full px-4 py-3 bg-white/80 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-gold-400">
+                                <option value="">All Categories</option>
+                                <option value="necklace">Necklace</option>
+                                <option value="ring">Ring</option>
+                                <option value="bracelet">Bracelet</option>
+                                <option value="earring">Earring</option>
+                                <option value="pendant">Pendant</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Material -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Material</label>
+                            <select id="materialFilterMobile" class="luxury-select w-full px-4 py-3 bg-white/80 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-gold-400">
+                                <option value="">All Materials</option>
+                                <option value="gold">Gold</option>
+                                <option value="silver">Silver</option>
+                                <option value="platinum">Platinum</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Price Range -->
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Price Range (USD)</label>
+                            <div class="flex items-center gap-2">
+                                <div class="relative flex-1">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                    <input type="number" id="minPriceFilterMobile" placeholder="Min" min="0"
+                                           class="price-input w-full pl-7 pr-3 py-3 bg-white/80 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-gold-400">
+                                </div>
+                                <span class="text-gray-400">–</span>
+                                <div class="relative flex-1">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                    <input type="number" id="maxPriceFilterMobile" placeholder="Max" min="0"
+                                           class="price-input w-full pl-7 pr-3 py-3 bg-white/80 border border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-gold-400">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- In Stock -->
+                        <label class="flex items-center gap-2.5 cursor-pointer">
+                            <input type="checkbox" id="inStockFilterMobile" class="luxury-checkbox">
+                            <span class="text-sm text-gray-700">In Stock Only</span>
+                        </label>
+                    </div>
+                    
+                    <div class="mt-8 pt-4 border-t border-gray-200">
+                        <button onclick="applyMobileFilters()" 
+                                class="w-full py-3.5 bg-gradient-to-r from-gold-500 to-gold-600 text-white rounded-xl font-medium shadow-lg shadow-gold-500/25 hover:shadow-xl transition-all">
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Results Section -->
             <div id="resultsSection" class="hidden">
                 <div class="flex items-center justify-between mb-8">
@@ -326,6 +638,7 @@
         // ===== STATE MANAGEMENT =====
         let currentFile = null;
         let isSearching = false;
+        let mobileFiltersOpen = false;
 
         // ===== DOM ELEMENTS =====
         const dropZone = document.getElementById('dropZone');
@@ -340,6 +653,23 @@
         const resultsGrid = document.getElementById('resultsGrid');
         const resultCount = document.getElementById('resultCount');
         const emptyState = document.getElementById('emptyState');
+        const filterSection = document.getElementById('filterSection');
+        const activeFilters = document.getElementById('activeFilters');
+        const activeFilterCount = document.getElementById('activeFilterCount');
+
+        // Filter elements - Desktop
+        const categoryFilter = document.getElementById('categoryFilter');
+        const materialFilter = document.getElementById('materialFilter');
+        const minPriceFilter = document.getElementById('minPriceFilter');
+        const maxPriceFilter = document.getElementById('maxPriceFilter');
+        const inStockFilter = document.getElementById('inStockFilter');
+
+        // Filter elements - Mobile
+        const categoryFilterMobile = document.getElementById('categoryFilterMobile');
+        const materialFilterMobile = document.getElementById('materialFilterMobile');
+        const minPriceFilterMobile = document.getElementById('minPriceFilterMobile');
+        const maxPriceFilterMobile = document.getElementById('maxPriceFilterMobile');
+        const inStockFilterMobile = document.getElementById('inStockFilterMobile');
 
         // ===== DRAG & DROP HANDLERS =====
         dropZone.addEventListener('dragover', (e) => {
@@ -389,6 +719,10 @@
                 uploadPrompt.classList.add('hidden');
                 previewContainer.classList.remove('hidden');
                 previewContainer.classList.add('animate-fade-in');
+                
+                // Show filter section when image is uploaded
+                filterSection.classList.remove('hidden');
+                filterSection.classList.add('animate-fade-in');
             };
             reader.readAsDataURL(file);
         }
@@ -402,7 +736,11 @@
             uploadPrompt.classList.remove('hidden');
             uploadPrompt.classList.add('animate-fade-in');
             
+            // Hide filter section
+            filterSection.classList.add('hidden');
+            
             clearResults();
+            clearAllFilters();
         }
 
         function formatFileSize(bytes) {
@@ -412,6 +750,159 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
+
+        // ===== FILTER MANAGEMENT =====
+        function getFilterValues() {
+            // Use mobile values if on mobile, otherwise desktop
+            const isMobile = window.innerWidth < 640;
+            
+            const category = isMobile ? categoryFilterMobile.value : categoryFilter.value;
+            const material = isMobile ? materialFilterMobile.value : materialFilter.value;
+            const minPrice = isMobile ? minPriceFilterMobile.value : minPriceFilter.value;
+            const maxPrice = isMobile ? maxPriceFilterMobile.value : maxPriceFilter.value;
+            const inStock = isMobile ? inStockFilterMobile.checked : inStockFilter.checked;
+            
+            return { category, material, minPrice, maxPrice, inStock };
+        }
+
+        function syncFilters(source) {
+            // Sync between desktop and mobile filter inputs
+            const isDesktop = source === 'desktop';
+            categoryFilterMobile.value = categoryFilter.value;
+            categoryFilter.value = categoryFilterMobile.value;
+            materialFilterMobile.value = materialFilter.value;
+            materialFilter.value = materialFilterMobile.value;
+            minPriceFilterMobile.value = minPriceFilter.value;
+            minPriceFilter.value = minPriceFilterMobile.value;
+            maxPriceFilterMobile.value = maxPriceFilter.value;
+            maxPriceFilter.value = maxPriceFilterMobile.value;
+            inStockFilterMobile.checked = inStockFilter.checked;
+            inStockFilter.checked = inStockFilterMobile.checked;
+        }
+
+        function populateFormData(formData) {
+            const { category, material, minPrice, maxPrice, inStock } = getFilterValues();
+            
+            formData.append('top_k', '10');
+            formData.append('include_embedding', 'false');
+            
+            if (category) formData.append('category', category);
+            if (material) formData.append('material', material);
+            if (minPrice) formData.append('price_min', minPrice);
+            if (maxPrice) formData.append('price_max', maxPrice);
+            formData.append('in_stock_only', inStock ? 'true' : 'false');
+        }
+
+        function updateActiveFiltersDisplay() {
+            const { category, material, minPrice, maxPrice, inStock } = getFilterValues();
+            const filters = [];
+            
+            if (category) filters.push({ label: category.charAt(0).toUpperCase() + category.slice(1), type: 'category' });
+            if (material) filters.push({ label: material.charAt(0).toUpperCase() + material.slice(1), type: 'material' });
+            if (minPrice || maxPrice) {
+                const priceLabel = `$${minPrice || '0'} - $${maxPrice || '∞'}`;
+                filters.push({ label: priceLabel, type: 'price' });
+            }
+            if (inStock) filters.push({ label: 'In Stock', type: 'stock' });
+            
+            // Update mobile badge
+            if (filters.length > 0) {
+                activeFilterCount.textContent = filters.length;
+                activeFilterCount.classList.remove('hidden');
+            } else {
+                activeFilterCount.classList.add('hidden');
+            }
+            
+            // Update desktop tags
+            activeFilters.innerHTML = '';
+            if (filters.length > 0) {
+                activeFilters.classList.remove('hidden');
+                filters.forEach(filter => {
+                    const tag = document.createElement('span');
+                    tag.className = 'filter-tag inline-flex items-center gap-1 px-3 py-1.5 bg-gold-50 text-gold-700 text-xs font-medium rounded-full border border-gold-200';
+                    tag.innerHTML = `${filter.label} <button onclick="removeFilter('${filter.type}')" class="hover:text-gold-900 ml-1">&times;</button>`;
+                    activeFilters.appendChild(tag);
+                });
+            } else {
+                activeFilters.classList.add('hidden');
+            }
+        }
+
+        function removeFilter(type) {
+            switch(type) {
+                case 'category':
+                    categoryFilter.value = '';
+                    categoryFilterMobile.value = '';
+                    break;
+                case 'material':
+                    materialFilter.value = '';
+                    materialFilterMobile.value = '';
+                    break;
+                case 'price':
+                    minPriceFilter.value = '';
+                    maxPriceFilter.value = '';
+                    minPriceFilterMobile.value = '';
+                    maxPriceFilterMobile.value = '';
+                    break;
+                case 'stock':
+                    inStockFilter.checked = false;
+                    inStockFilterMobile.checked = false;
+                    break;
+            }
+            updateActiveFiltersDisplay();
+            if (currentFile) performSearch();
+        }
+
+        function clearAllFilters() {
+            categoryFilter.value = '';
+            materialFilter.value = '';
+            minPriceFilter.value = '';
+            maxPriceFilter.value = '';
+            inStockFilter.checked = false;
+            categoryFilterMobile.value = '';
+            materialFilterMobile.value = '';
+            minPriceFilterMobile.value = '';
+            maxPriceFilterMobile.value = '';
+            inStockFilterMobile.checked = false;
+            updateActiveFiltersDisplay();
+        }
+
+        function toggleFilters() {
+            mobileFiltersOpen = !mobileFiltersOpen;
+            const drawer = document.getElementById('mobileFilterDrawer');
+            const overlay = document.getElementById('mobileFilterOverlay');
+            
+            if (mobileFiltersOpen) {
+                drawer.classList.add('open');
+                overlay.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            } else {
+                drawer.classList.remove('open');
+                overlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function applyMobileFilters() {
+            // Sync mobile values to desktop
+            categoryFilter.value = categoryFilterMobile.value;
+            materialFilter.value = materialFilterMobile.value;
+            minPriceFilter.value = minPriceFilterMobile.value;
+            maxPriceFilter.value = maxPriceFilterMobile.value;
+            inStockFilter.checked = inStockFilterMobile.checked;
+            
+            toggleFilters();
+            updateActiveFiltersDisplay();
+            if (currentFile) performSearch();
+        }
+
+        // Listen for filter changes on desktop
+        [categoryFilter, materialFilter, minPriceFilter, maxPriceFilter, inStockFilter].forEach(el => {
+            el.addEventListener('change', () => {
+                syncFilters('desktop');
+                updateActiveFiltersDisplay();
+            });
+        });
 
         // ===== SEARCH FUNCTIONALITY =====
         async function performSearch() {
@@ -424,8 +915,11 @@
             try {
                 const formData = new FormData();
                 formData.append('image', currentFile);
+                
+                // Inject the dynamic filters securely into the FormData body
+                populateFormData(formData);
 
-                const response = await fetch('http://localhost:8000/v1/search/visual?top_k=8&in_stock_only=false', {
+                const response = await fetch(`http://localhost:8000/v1/search/visual`, {
                     method: 'POST',
                     body: formData
                 });
@@ -456,7 +950,7 @@
                 resultsGrid.innerHTML = `
                     <div class="col-span-full text-center py-16">
                         <p class="text-gray-500 text-lg">No matching jewelry found</p>
-                        <p class="text-gray-400 text-sm mt-2">Try uploading a different image</p>
+                        <p class="text-gray-400 text-sm mt-2">Try adjusting your filters or uploading a different image</p>
                     </div>
                 `;
                 return;
@@ -482,7 +976,6 @@
         }
 
         function createResultCard(item, index) {
-            // FIX APPLIED HERE: Removed '* 100' so the math works perfectly
             const score = Math.round(item.similarity_score || 0);
             const scoreColor = getScoreColor(score);
             const scoreBg = getScoreBg(score);
@@ -510,13 +1003,26 @@
                         </span>
                     </div>
                     
+                    <!-- Category Badge -->
+                    ${item.category ? `
+                    <div class="absolute top-3 left-3">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-white/90 text-gray-700 shadow-md backdrop-blur-sm">
+                            ${item.category}
+                        </span>
+                    </div>
+                    ` : ''}
+                    
                     <!-- Hover Overlay -->
                     <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </div>
                 
                 <div class="p-5">
                     <h4 class="font-serif text-lg text-gray-900 mb-1 leading-snug line-clamp-2">${item.name}</h4>
-                    <div class="flex items-center justify-between mt-3">
+                    <div class="flex items-center gap-2 mt-1 mb-3">
+                        ${item.material ? `<span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">${item.material}</span>` : ''}
+                        ${item.in_stock === false ? `<span class="text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded-full">Out of Stock</span>` : ''}
+                    </div>
+                    <div class="flex items-center justify-between">
                         <span class="text-xl font-semibold text-gray-900">$${item.price?.toFixed(2) || '0.00'}</span>
                         <button class="text-xs text-gold-600 hover:text-gold-700 font-medium uppercase tracking-wider flex items-center gap-1 group/btn">
                             View Details
@@ -583,7 +1089,11 @@
                 performSearch();
             }
             if (e.key === 'Escape') {
-                clearUpload();
+                if (mobileFiltersOpen) {
+                    toggleFilters();
+                } else {
+                    clearUpload();
+                }
             }
         });
 
@@ -598,6 +1108,9 @@
                 }
             }
         });
+
+        // ===== INITIALIZE =====
+        updateActiveFiltersDisplay();
     </script>
 </body>
 </html>
